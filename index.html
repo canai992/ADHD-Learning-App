@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ADHD Learning System</title>
+    <style>
+      :root {
+        color: #1d2433;
+        background: #eef2f6;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+      }
+
+      button,
+      textarea {
+        font: inherit;
+      }
+
+      .app-shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 4px;
+        color: #496274;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 0;
+        font-size: clamp(2rem, 4vw, 3.6rem);
+        line-height: 1;
+      }
+
+      h2 {
+        margin-bottom: 2px;
+        font-size: 1.1rem;
+      }
+
+      .layout,
+      .quiz-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .layout {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        margin-bottom: 16px;
+      }
+
+      .quiz-grid {
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      }
+
+      .card {
+        border: 1px solid #d8e0e8;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 18px 50px rgba(60, 75, 90, 0.1);
+        padding: 20px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .icon {
+        display: inline-grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        flex: 0 0 auto;
+        border-radius: 8px;
+        color: #ffffff;
+        background: #007c89;
+        font-weight: 900;
+      }
+
+      .section-title p {
+        margin-bottom: 0;
+        color: #657487;
+        font-size: 0.94rem;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 180px;
+        resize: vertical;
+        border: 1px solid #cbd6e2;
+        border-radius: 8px;
+        padding: 14px;
+        color: #1d2433;
+        background: #f9fbfd;
+        outline: none;
+      }
+
+      textarea:focus {
+        border-color: #007c89;
+        box-shadow: 0 0 0 3px rgba(0, 124, 137, 0.15);
+      }
+
+      .card-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+        color: #657487;
+        font-size: 0.9rem;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 0;
+        border-radius: 8px;
+        padding: 0 16px;
+        color: #ffffff;
+        background: #007c89;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .button.secondary {
+        color: #243140;
+        background: #dfe7ee;
+      }
+
+      .button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .progress-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .meter {
+        height: 12px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #dfe7ee;
+      }
+
+      .meter span {
+        display: block;
+        width: 0%;
+        height: 100%;
+        border-radius: inherit;
+        background: #f2b84b;
+        transition: width 180ms ease;
+      }
+
+      .stats {
+        display: grid;
+        gap: 4px;
+        margin-top: 24px;
+      }
+
+      .stats strong {
+        font-size: 3rem;
+        line-height: 1;
+      }
+
+      .stats span {
+        color: #657487;
+      }
+
+      .empty-state {
+        display: grid;
+        min-height: 280px;
+        place-items: center;
+        gap: 10px;
+        border: 1px dashed #b9c7d4;
+        border-radius: 8px;
+        color: #657487;
+        text-align: center;
+      }
+
+      .empty-state p {
+        width: min(320px, 100%);
+        margin-bottom: 0;
+      }
+
+      .question-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .question {
+        display: grid;
+        gap: 10px;
+        border-top: 1px solid #e5ebf0;
+        padding-top: 14px;
+      }
+
+      .question:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .question label {
+        display: grid;
+        gap: 4px;
+        color: #243140;
+        font-weight: 700;
+      }
+
+      .question label span {
+        width: fit-content;
+        border-radius: 999px;
+        padding: 2px 9px;
+        color: #0f5762;
+        background: #d9f0f2;
+        font-size: 0.76rem;
+      }
+
+      .question textarea {
+        min-height: 96px;
+      }
+
+      .check-row {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 8px;
+        border: 0;
+        background: transparent;
+        color: #496274;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .check-row .box {
+        display: grid;
+        width: 20px;
+        height: 20px;
+        place-items: center;
+        border: 2px solid #99a9b8;
+        border-radius: 6px;
+      }
+
+      .check-row.checked {
+        color: #007c89;
+      }
+
+      .check-row.checked .box {
+        border-color: #007c89;
+        background: #007c89;
+        color: #ffffff;
+      }
+
+      .prompt-list {
+        display: grid;
+        gap: 10px;
+        margin: 0 0 16px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .prompt-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        color: #334457;
+      }
+
+      .prompt-list li::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        margin-top: 8px;
+        border-radius: 999px;
+        background: #f2b84b;
+      }
+
+      .reflection-box {
+        min-height: 220px;
+      }
+
+      @media (max-width: 860px) {
+        .topbar,
+        .card-actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .layout,
+        .quiz-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <div class="topbar">
+        <div>
+          <p class="eyebrow">Active recall workspace</p>
+          <h1>ADHD Learning System</h1>
+        </div>
+        <button class="button secondary" id="resetButton" type="button">Reset</button>
+      </div>
+
+      <section class="layout">
+        <section class="card">
+          <div class="section-title">
+            <span class="icon" aria-hidden="true">1</span>
+            <div>
+              <h2>Encode</h2>
+              <p>Write what you learned in your own words.</p>
+            </div>
+          </div>
+          <textarea
+            id="notes"
+            aria-label="Learning notes"
+            placeholder="Explain the concept, add examples, or paste a rough note dump here..."
+          ></textarea>
+          <div class="card-actions">
+            <span id="wordCount">0 words</span>
+            <button class="button" id="generateButton" type="button" disabled>
+              Generate Questions
+            </button>
+          </div>
+        </section>
+
+        <section class="card progress-panel">
+          <div class="section-title">
+            <span class="icon" aria-hidden="true">2</span>
+            <div>
+              <h2>Focus Loop</h2>
+              <p>Short pass, quick feedback, next rep.</p>
+            </div>
+          </div>
+          <div class="meter" aria-label="0% complete">
+            <span id="progressBar"></span>
+          </div>
+          <div class="stats">
+            <strong id="completedCount">0</strong>
+            <span id="progressText">of 5 retrieval prompts complete</span>
+          </div>
+        </section>
+      </section>
+
+      <section class="quiz-grid">
+        <section class="card">
+          <div class="section-title">
+            <span class="icon" aria-hidden="true">?</span>
+            <div>
+              <h2>Retrieve</h2>
+              <p>Answer before rereading your notes.</p>
+            </div>
+          </div>
+          <div id="quizArea" class="empty-state">
+            <span class="icon" aria-hidden="true">3</span>
+            <p>Add at least a few sentences, then generate your retrieval prompts.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <span class="icon" aria-hidden="true">4</span>
+            <div>
+              <h2>Reflect</h2>
+              <p>Find the next useful study move.</p>
+            </div>
+          </div>
+          <ul class="prompt-list">
+            <li>What did I misunderstand?</li>
+            <li>How does this connect to what I already know?</li>
+            <li>Where would I use this in real life?</li>
+          </ul>
+          <textarea
+            class="reflection-box"
+            id="reflection"
+            aria-label="Reflection notes"
+            placeholder="Capture what to revisit, connect, or practice next..."
+          ></textarea>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const notesInput = document.querySelector("#notes");
+      const generateButton = document.querySelector("#generateButton");
+      const resetButton = document.querySelector("#resetButton");
+      const wordCount = document.querySelector("#wordCount");
+      const quizArea = document.querySelector("#quizArea");
+      const progressBar = document.querySelector("#progressBar");
+      const completedCount = document.querySelector("#completedCount");
+      const progressText = document.querySelector("#progressText");
+      const reflection = document.querySelector("#reflection");
+
+      let quiz = [];
+
+      function getWordCount(value) {
+        return value.trim().split(/\s+/).filter(Boolean).length;
+      }
+
+      function buildQuestions(notes) {
+        return notes
+          .replace(/\s+/g, " ")
+          .split(/[.!?]+/)
+          .map((sentence) => sentence.trim())
+          .filter((sentence) => sentence.length > 18)
+          .slice(0, 5)
+          .map((sentence, index) => ({
+            prompt: `Explain this idea in your own words: ${sentence}`,
+            answer: "",
+            done: false,
+            id: `${index}-${sentence.slice(0, 20)}`,
+          }));
+      }
+
+      function updateProgress() {
+        const complete = quiz.filter((question) => question.done).length;
+        const total = quiz.length || 5;
+        const percent = quiz.length ? Math.round((complete / quiz.length) * 100) : 0;
+
+        completedCount.textContent = complete;
+        progressText.textContent = `of ${total} retrieval prompts complete`;
+        progressBar.style.width = `${percent}%`;
+        progressBar.parentElement.setAttribute("aria-label", `${percent}% complete`);
+      }
+
+      function renderQuiz() {
+        if (quiz.length === 0) {
+          quizArea.className = "empty-state";
+          quizArea.innerHTML =
+            '<span class="icon" aria-hidden="true">3</span><p>Add at least a few sentences, then generate your retrieval prompts.</p>';
+          updateProgress();
+          return;
+        }
+
+        quizArea.className = "question-list";
+        quizArea.innerHTML = "";
+
+        quiz.forEach((question, index) => {
+          const item = document.createElement("article");
+          item.className = "question";
+
+          const label = document.createElement("label");
+          const badge = document.createElement("span");
+          badge.textContent = `Q${index + 1}`;
+          label.append(badge, document.createTextNode(question.prompt));
+
+          const answer = document.createElement("textarea");
+          answer.value = question.answer;
+          answer.placeholder = "Type your answer from memory...";
+          answer.setAttribute("aria-label", `Answer for question ${index + 1}`);
+          answer.addEventListener("input", (event) => {
+            question.answer = event.target.value;
+          });
+
+          const check = document.createElement("button");
+          check.type = "button";
+          check.className = `check-row${question.done ? " checked" : ""}`;
+          check.innerHTML = `<span class="box">${question.done ? "✓" : ""}</span> Mark this as reviewed`;
+          check.addEventListener("click", () => {
+            question.done = !question.done;
+            renderQuiz();
+          });
+
+          item.append(label, answer, check);
+          quizArea.append(item);
+        });
+
+        updateProgress();
+      }
+
+      notesInput.addEventListener("input", () => {
+        const words = getWordCount(notesInput.value);
+        wordCount.textContent = `${words} ${words === 1 ? "word" : "words"}`;
+        generateButton.disabled = notesInput.value.trim().length < 20;
+      });
+
+      generateButton.addEventListener("click", () => {
+        quiz = buildQuestions(notesInput.value);
+        renderQuiz();
+      });
+
+      resetButton.addEventListener("click", () => {
+        notesInput.value = "";
+        reflection.value = "";
+        wordCount.textContent = "0 words";
+        generateButton.disabled = true;
+        quiz = [];
+        renderQuiz();
+      });
+    </script>
+  </body>
+</html>
